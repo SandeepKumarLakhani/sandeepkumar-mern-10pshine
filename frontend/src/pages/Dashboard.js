@@ -99,15 +99,17 @@ const Dashboard = () => {
   const handleSearch = (event) => {
     const value = event.target.value;
     setSearchTerm(value);
-    
-    // Debounce search
+  };
+
+  // Debounced search effect
+  useEffect(() => {
     const timeoutId = setTimeout(() => {
-      setFilters({ search: value });
-      fetchNotes(1, { search: value });
+      setFilters({ search: searchTerm });
+      fetchNotes(1, { search: searchTerm });
     }, 500);
 
     return () => clearTimeout(timeoutId);
-  };
+  }, [searchTerm, setFilters, fetchNotes]);
 
   const handleSortChange = (event) => {
     const value = event.target.value;

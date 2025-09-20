@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useReducer, useEffect } from 'react';
+import React, { createContext, useContext, useReducer, useEffect, useCallback } from 'react';
 import { notesAPI } from '../services/api';
 
 const NotesContext = createContext();
@@ -99,7 +99,7 @@ const notesReducer = (state, action) => {
 export const NotesProvider = ({ children }) => {
   const [state, dispatch] = useReducer(notesReducer, initialState);
 
-  const fetchNotes = async (page = 1, filters = {}) => {
+  const fetchNotes = useCallback(async (page = 1, filters = {}) => {
     dispatch({ type: 'SET_LOADING', payload: true });
     try {
       const params = {
@@ -122,9 +122,9 @@ export const NotesProvider = ({ children }) => {
       dispatch({ type: 'SET_ERROR', payload: message });
       return { success: false, error: message };
     }
-  };
+  }, [state.filters]);
 
-  const fetchNote = async (id) => {
+  const fetchNote = useCallback(async (id) => {
     dispatch({ type: 'SET_LOADING', payload: true });
     try {
       const response = await notesAPI.getNote(id);
@@ -137,9 +137,9 @@ export const NotesProvider = ({ children }) => {
       dispatch({ type: 'SET_ERROR', payload: message });
       return { success: false, error: message };
     }
-  };
+  }, []);
 
-  const createNote = async (noteData) => {
+  const createNote = useCallback(async (noteData) => {
     dispatch({ type: 'SET_LOADING', payload: true });
     try {
       const response = await notesAPI.createNote(noteData);
@@ -152,9 +152,9 @@ export const NotesProvider = ({ children }) => {
       dispatch({ type: 'SET_ERROR', payload: message });
       return { success: false, error: message };
     }
-  };
+  }, []);
 
-  const updateNote = async (id, noteData) => {
+  const updateNote = useCallback(async (id, noteData) => {
     dispatch({ type: 'SET_LOADING', payload: true });
     try {
       const response = await notesAPI.updateNote(id, noteData);
@@ -167,9 +167,9 @@ export const NotesProvider = ({ children }) => {
       dispatch({ type: 'SET_ERROR', payload: message });
       return { success: false, error: message };
     }
-  };
+  }, []);
 
-  const deleteNote = async (id) => {
+  const deleteNote = useCallback(async (id) => {
     dispatch({ type: 'SET_LOADING', payload: true });
     try {
       await notesAPI.deleteNote(id);
@@ -181,9 +181,9 @@ export const NotesProvider = ({ children }) => {
       dispatch({ type: 'SET_ERROR', payload: message });
       return { success: false, error: message };
     }
-  };
+  }, []);
 
-  const togglePin = async (id) => {
+  const togglePin = useCallback(async (id) => {
     try {
       const response = await notesAPI.togglePin(id);
       const note = response.data.data.note;
@@ -195,19 +195,19 @@ export const NotesProvider = ({ children }) => {
       dispatch({ type: 'SET_ERROR', payload: message });
       return { success: false, error: message };
     }
-  };
+  }, []);
 
-  const setFilters = (filters) => {
+  const setFilters = useCallback((filters) => {
     dispatch({ type: 'SET_FILTERS', payload: filters });
-  };
+  }, []);
 
-  const clearError = () => {
+  const clearError = useCallback(() => {
     dispatch({ type: 'CLEAR_ERROR' });
-  };
+  }, []);
 
-  const clearCurrentNote = () => {
+  const clearCurrentNote = useCallback(() => {
     dispatch({ type: 'CLEAR_CURRENT_NOTE' });
-  };
+  }, []);
 
   const value = {
     ...state,
