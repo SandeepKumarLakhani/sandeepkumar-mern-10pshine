@@ -4,7 +4,7 @@ import '@testing-library/jest-dom';
 import NoteCard from '../Notes/NoteCard';
 
 const mockNote = {
-  _id: '1',
+  id: '1',
   title: 'Test Note',
   content: 'This is a test note content',
   tags: ['test', 'example'],

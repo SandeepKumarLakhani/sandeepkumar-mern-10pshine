@@ -23,11 +23,11 @@ const NoteCard = ({ note, onEdit, onDelete, onTogglePin }) => {
   };
 
   const handleDelete = () => {
-    onDelete(note._id);
+    onDelete(note.id);
   };
 
   const handleTogglePin = () => {
-    onTogglePin(note._id);
+    onTogglePin(note.id);
   };
 
   return (

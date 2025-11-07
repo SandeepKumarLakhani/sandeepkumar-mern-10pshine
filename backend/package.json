@@ -6,9 +6,9 @@
   "scripts": {
     "start": "node src/server.js",
     "dev": "nodemon src/server.js",
-    "test": "mocha src/tests/**/*.test.js --timeout 10000",
-    "test:watch": "mocha src/tests/**/*.test.js --watch --timeout 10000",
-    "test:coverage": "nyc mocha src/tests/**/*.test.js --timeout 10000",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "format": "prettier --write .",

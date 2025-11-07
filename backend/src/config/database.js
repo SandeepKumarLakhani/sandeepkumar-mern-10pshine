@@ -46,7 +46,7 @@ async function initializeDatabase() {
     // Sync all models
     // NOTE: using { force: true } during initial setup will DROP and recreate tables.
     // This is acceptable in development but will erase existing data. Change back to { alter: true } once stable.
-    await sequelize.sync({ force: true });
+    await sequelize.sync({ alter: true });
     logger.info('Database synced successfully (force: true)');
     _dbInitialized = true;
   } catch (error) {

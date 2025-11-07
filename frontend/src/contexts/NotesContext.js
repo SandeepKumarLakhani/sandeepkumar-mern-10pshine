@@ -57,19 +57,19 @@ const notesReducer = (state, action) => {
       return {
         ...state,
         notes: state.notes.map(note =>
-          note._id === action.payload._id ? action.payload : note
+          note.id === action.payload.id ? action.payload : note
         ),
-        currentNote: state.currentNote?._id === action.payload._id ? action.payload : state.currentNote,
+        currentNote: state.currentNote?.id === action.payload.id ? action.payload : state.currentNote,
       };
     case 'DELETE_NOTE':
       return {
         ...state,
-        notes: state.notes.filter(note => note._id !== action.payload),
+        notes: state.notes.filter(note => note.id !== action.payload),
         pagination: {
           ...state.pagination,
           totalNotes: state.pagination.totalNotes - 1,
         },
-        currentNote: state.currentNote?._id === action.payload ? null : state.currentNote,
+        currentNote: state.currentNote?.id === action.payload ? null : state.currentNote,
       };
     case 'SET_CURRENT_NOTE':
       return {

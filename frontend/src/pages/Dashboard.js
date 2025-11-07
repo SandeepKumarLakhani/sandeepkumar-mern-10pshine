@@ -75,7 +75,7 @@ const Dashboard = () => {
   const handleSaveNote = async (noteData) => {
     try {
       if (editingNote) {
-        await updateNote(editingNote._id, noteData);
+        await updateNote(editingNote.id, noteData);
       } else {
         await createNote(noteData);
       }
@@ -210,7 +210,7 @@ const Dashboard = () => {
               </Typography>
               <Grid container spacing={2}>
                 {pinnedNotes.map((note) => (
-                  <Grid item xs={12} sm={6} md={4} lg={3} key={note._id}>
+                  <Grid item xs={12} sm={6} md={4} lg={3} key={note.id}>
                     <NoteCard
                       note={note}
                       onEdit={handleEditNote}
@@ -234,7 +234,7 @@ const Dashboard = () => {
               )}
               <Grid container spacing={2}>
                 {regularNotes.map((note) => (
-                  <Grid item xs={12} sm={6} md={4} lg={3} key={note._id}>
+                  <Grid item xs={12} sm={6} md={4} lg={3} key={note.id}>
                     <NoteCard
                       note={note}
                       onEdit={handleEditNote}
