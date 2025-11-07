@@ -1,8 +1,8 @@
-# 10P SHINE - MERN Notes App
+# Notes Application with React and Node.js
 
 ## Repository Information
 - **Repository Name**: sandeepkumar-mern-10pshine
-- **Project Type**: MERN Stack Notes Application
+- **Project Type**: Full Stack Notes Application (React, Express, MySQL, Node.js)
 - **Organization**: 10P SHINE
 - **Developer**: Sandeep Kumar
 
@@ -14,8 +14,8 @@ A full-stack web application that allows users to create, edit, and delete notes
 ### Backend
 - **Node.js** - Runtime environment
 - **Express.js** - Web framework
-- **MongoDB** - Dat
-- **Mongoose** - ODM
+- **MySQL** - Database
+- **Sequelize** - ORM
 - **JWT** - Authentication
 - **Pino** - Logging
 - **Mocha/Chai** - Testing
@@ -170,7 +170,7 @@ sandeepkumar-mern-10pshine/
 
 ### Prerequisites
 - Node.js (v14 or higher)
-- MongoDB (local or cloud instance)
+- MySQL (v8.0 or higher)
 - npm or yarn
 - Git
 
@@ -194,7 +194,11 @@ sandeepkumar-mern-10pshine/
    ```
    NODE_ENV=development
    PORT=5000
-   MONGODB_URI=mongodb://localhost:27017/notes-app
+   DB_HOST=localhost
+   DB_PORT=3306
+   DB_NAME=notes_app
+   DB_USER=your_mysql_user
+   DB_PASSWORD=your_mysql_password
    JWT_SECRET=your-super-secret-jwt-key-here
    JWT_EXPIRE=7d
    FRONTEND_URL=http://localhost:3000
