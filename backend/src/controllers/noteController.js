@@ -1,5 +1,6 @@
 const { validationResult } = require('express-validator');
 const { Op } = require('sequelize');
+const { sequelize } = require('../config/database');
 const Note = require('../models/Note');
 const User = require('../models/User');
 const logger = require('../utils/logger');
@@ -28,10 +29,19 @@ const getNotes = async (req, res) => {
       ];
     }
 
-    // Tags filter (basic JSON string match)
+    // Tags filter (use JSON_CONTAINS for MySQL JSON column)
     if (tags) {
-      const tagList = tags.split(',');
-      where[Op.or] = tagList.map(t => ({ tags: { [Op.like]: `%"${t}"%` } }));
+      const tagList = tags.split(',').map(t => t.trim()).filter(Boolean);
+      if (tagList.length) {
+        // build array of JSON_CONTAINS literals for each tag and use OR
+        const tagConditions = tagList.map(t =>
+          sequelize.where(
+            sequelize.fn('JSON_CONTAINS', sequelize.col('tags'), JSON.stringify(t)),
+            1
+          )
+        );
+        where[Op.or] = tagConditions;
+      }
     }
 
     const order = [[sortBy, sortOrder.toUpperCase()]];
@@ -49,10 +59,17 @@ const getNotes = async (req, res) => {
       'Notes retrieved successfully'
     );
 
+    // Map notes to plain objects and add `_id` for frontend compatibility (Mongo-like field)
+    const notesPayload = notes.map(n => {
+      const obj = n.toJSON();
+      obj._id = obj.id;
+      return obj;
+    });
+
     res.json({
       success: true,
       data: {
-        notes,
+        notes: notesPayload,
         pagination: {
           currentPage: parseInt(page),
           totalPages: Math.ceil(total / limit),
@@ -85,7 +102,9 @@ const getNote = async (req, res) => {
 
     logger.info({ noteId: note.id, userId: req.user.id }, 'Note retrieved successfully');
 
-    res.json({ success: true, data: { note } });
+    const notePayload = note.toJSON();
+    notePayload._id = notePayload.id;
+    res.json({ success: true, data: { note: notePayload } });
   } catch (error) {
     logger.error({ error: error.message, stack: error.stack }, 'Get note error');
     res.status(500).json({ success: false, message: 'Server error retrieving note' });
@@ -108,11 +127,14 @@ const createNote = async (req, res) => {
     }
 
     const noteData = { ...req.body, userId: req.user.id };
-    const note = await Note.create(noteData);
+    let note = await Note.create(noteData);
 
     logger.info({ noteId: note.id, userId: req.user.id }, 'Note created successfully');
 
-    res.status(201).json({ success: true, message: 'Note created successfully', data: { note } });
+    const notePayload = note.toJSON();
+    notePayload._id = notePayload.id;
+
+    res.status(201).json({ success: true, message: 'Note created successfully', data: { note: notePayload } });
   } catch (error) {
     logger.error({ error: error.message, stack: error.stack }, 'Create note error');
     res.status(500).json({
@@ -150,7 +172,13 @@ const updateNote = async (req, res) => {
 
     logger.info({ noteId: note.id, userId: req.user.id }, 'Note updated successfully');
 
-    res.json({ success: true, message: 'Note updated successfully', data: { note } });
+    // Refresh and return updated note payload with `_id`
+    note = await Note.findByPk(note.id, {
+      include: [{ model: User, as: 'user', attributes: ['id', 'name', 'email'] }],
+    });
+    const updatedPayload = note.toJSON();
+    updatedPayload._id = updatedPayload.id;
+    res.json({ success: true, message: 'Note updated successfully', data: { note: updatedPayload } });
   } catch (error) {
     logger.error({ error: error.message, stack: error.stack }, 'Update note error');
     res.status(500).json({
@@ -209,10 +237,15 @@ const togglePin = async (req, res) => {
       'Note pin status toggled'
     );
 
+    const updated = await Note.findByPk(note.id, {
+      include: [{ model: User, as: 'user', attributes: ['id', 'name', 'email'] }],
+    });
+    const updatedPayload = updated.toJSON();
+    updatedPayload._id = updatedPayload.id;
     res.json({
       success: true,
-      message: `Note ${note.isPinned ? 'pinned' : 'unpinned'} successfully`,
-      data: { note },
+      message: `Note ${updatedPayload.isPinned ? 'pinned' : 'unpinned'} successfully`,
+      data: { note: updatedPayload },
     });
   } catch (error) {
     logger.error({ error: error.message, stack: error.stack }, 'Toggle pin error');
