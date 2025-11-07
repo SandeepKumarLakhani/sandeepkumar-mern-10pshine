@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useReducer, useEffect } from 'react';
+import React, { createContext, useContext, useReducer, useEffect, useCallback, useMemo } from 'react';
 import { authAPI } from '../services/api';
 
 const AuthContext = createContext();
@@ -88,7 +88,7 @@ export const AuthProvider = ({ children }) => {
     checkAuth();
   }, []);
 
-  const login = async (credentials) => {
+  const login = useCallback(async (credentials) => {
     dispatch({ type: 'AUTH_START' });
     try {
       const response = await authAPI.login(credentials);
@@ -108,9 +108,9 @@ export const AuthProvider = ({ children }) => {
       dispatch({ type: 'AUTH_FAILURE', payload: message });
       return { success: false, error: message };
     }
-  };
+  }, []);
 
-  const register = async (userData) => {
+  const register = useCallback(async (userData) => {
     dispatch({ type: 'AUTH_START' });
     try {
       const response = await authAPI.register(userData);
@@ -130,25 +130,25 @@ export const AuthProvider = ({ children }) => {
       dispatch({ type: 'AUTH_FAILURE', payload: message });
       return { success: false, error: message };
     }
-  };
+  }, []);
 
-  const logout = () => {
+  const logout = useCallback(() => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
     dispatch({ type: 'LOGOUT' });
-  };
+  }, []);
 
-  const clearError = () => {
+  const clearError = useCallback(() => {
     dispatch({ type: 'CLEAR_ERROR' });
-  };
+  }, []);
 
-  const value = {
+  const value = useMemo(() => ({
     ...state,
     login,
     register,
     logout,
     clearError,
-  };
+  }), [state, login, register, logout, clearError]);
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };

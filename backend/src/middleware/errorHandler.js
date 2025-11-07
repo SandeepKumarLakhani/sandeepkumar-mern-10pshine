@@ -5,30 +5,30 @@ const errorHandler = (err, req, res, next) => {
   error.message = err.message;
 
   // Log error
-  logger.error({
-    error: err.message,
-    stack: err.stack,
-    url: req.originalUrl,
-    method: req.method,
-    ip: req.ip,
-    userId: req.user?.id
-  }, 'Error occurred');
+  logger.error(
+    {
+      error: err.message,
+      stack: err.stack,
+      url: req.originalUrl,
+      method: req.method,
+      ip: req.ip,
+      userId: req.user?.id,
+    },
+    'Error occurred'
+  );
 
   // Mongoose bad ObjectId
-  if (err.name === 'CastError') {
-    const message = 'Resource not found';
-    error = { message, statusCode: 404 };
-  }
-
-  // Mongoose duplicate key
-  if (err.code === 11000) {
-    const message = 'Duplicate field value entered';
+  // Sequelize: handle validation and unique constraint errors
+  if (err.name === 'SequelizeValidationError' || err.name === 'SequelizeUniqueConstraintError') {
+    // Collect messages
+    const messages = (err.errors || []).map(e => e.message).join(', ');
+    const message = messages || err.message || 'Validation error';
     error = { message, statusCode: 400 };
   }
 
-  // Mongoose validation error
-  if (err.name === 'ValidationError') {
-    const message = Object.values(err.errors).map(val => val.message).join(', ');
+  // Generic DB cast / not found (e.g., invalid PK format)
+  if (err.name === 'SequelizeDatabaseError') {
+    const message = 'Database error';
     error = { message, statusCode: 400 };
   }
 
@@ -46,7 +46,7 @@ const errorHandler = (err, req, res, next) => {
   res.status(error.statusCode || 500).json({
     success: false,
     message: error.message || 'Server Error',
-    ...(process.env.NODE_ENV === 'development' && { stack: err.stack })
+    ...(process.env.NODE_ENV === 'development' && { stack: err.stack }),
   });
 };
 

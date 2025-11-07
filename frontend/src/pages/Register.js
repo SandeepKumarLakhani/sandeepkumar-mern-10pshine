@@ -35,7 +35,18 @@ const Register = () => {
     formState: { errors },
   } = useForm({
     resolver: yupResolver(schema),
+    defaultValues: {
+      name: '',
+      email: '',
+      password: '',
+      confirmPassword: ''
+    }
   });
+  
+  // Ensure form inputs are controlled from the start to avoid
+  // React warning about switching uncontrolled -> controlled
+  // Provide empty default values for all fields
+  
 
   useEffect(() => {
     if (isAuthenticated) {

@@ -26,7 +26,6 @@ const theme = createTheme({
     MuiButton: {
       styleOverrides: {
         root: {
-          textTransform: 'none',
         },
       },
     },
@@ -43,6 +42,7 @@ function App() {
             <Routes>
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
+              {/* Protected root route */}
               <Route
                 path="/"
                 element={
@@ -53,6 +53,7 @@ function App() {
                   </ProtectedRoute>
                 }
               />
+
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
           </Router>

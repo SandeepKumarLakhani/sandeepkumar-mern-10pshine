@@ -7,29 +7,29 @@ const logger = require('../utils/logger');
 // @access  Private
 const getProfile = async (req, res) => {
   try {
-    const user = await User.findById(req.user.id);
-    
-    logger.info({ userId: user._id }, 'User profile retrieved');
+    const user = await User.findByPk(req.user.id);
+
+    logger.info({ userId: user.id }, 'User profile retrieved');
 
     res.json({
       success: true,
       data: {
         user: {
-          id: user._id,
+          id: user.id,
           name: user.name,
           email: user.email,
           avatar: user.avatar,
           lastLogin: user.lastLogin,
           createdAt: user.createdAt,
-          isActive: user.isActive
-        }
-      }
+          isActive: user.isActive,
+        },
+      },
     });
   } catch (error) {
     logger.error({ error: error.message, stack: error.stack }, 'Get profile error');
     res.status(500).json({
       success: false,
-      message: 'Server error retrieving profile'
+      message: 'Server error retrieving profile',
     });
   }
 };
@@ -45,7 +45,7 @@ const updateProfile = async (req, res) => {
       return res.status(400).json({
         success: false,
         message: 'Validation failed',
-        errors: errors.array()
+        errors: errors.array(),
       });
     }
 
@@ -55,33 +55,30 @@ const updateProfile = async (req, res) => {
     if (name) updateData.name = name;
     if (avatar) updateData.avatar = avatar;
 
-    const user = await User.findByIdAndUpdate(
-      req.user.id,
-      updateData,
-      { new: true, runValidators: true }
-    );
+    const user = await User.findByPk(req.user.id);
+    await user.update(updateData, { hooks: true });
 
-    logger.info({ userId: user._id }, 'User profile updated successfully');
+    logger.info({ userId: user.id }, 'User profile updated successfully');
 
     res.json({
       success: true,
       message: 'Profile updated successfully',
       data: {
         user: {
-          id: user._id,
+          id: user.id,
           name: user.name,
           email: user.email,
           avatar: user.avatar,
           lastLogin: user.lastLogin,
-          createdAt: user.createdAt
-        }
-      }
+          createdAt: user.createdAt,
+        },
+      },
     });
   } catch (error) {
     logger.error({ error: error.message, stack: error.stack }, 'Update profile error');
     res.status(500).json({
       success: false,
-      message: 'Server error updating profile'
+      message: 'Server error updating profile',
     });
   }
 };
@@ -97,22 +94,22 @@ const changePassword = async (req, res) => {
       return res.status(400).json({
         success: false,
         message: 'Validation failed',
-        errors: errors.array()
+        errors: errors.array(),
       });
     }
 
     const { currentPassword, newPassword } = req.body;
 
     // Get user with password
-    const user = await User.findById(req.user.id).select('+password');
+    const user = await User.findByPk(req.user.id);
 
     // Check current password
-    const isCurrentPasswordValid = await user.comparePassword(currentPassword);
+    const isCurrentPasswordValid = await user.matchPassword(currentPassword);
     if (!isCurrentPasswordValid) {
-      logger.warn({ userId: user._id }, 'Invalid current password provided');
+      logger.warn({ userId: user.id }, 'Invalid current password provided');
       return res.status(400).json({
         success: false,
-        message: 'Current password is incorrect'
+        message: 'Current password is incorrect',
       });
     }
 
@@ -120,17 +117,17 @@ const changePassword = async (req, res) => {
     user.password = newPassword;
     await user.save();
 
-    logger.info({ userId: user._id }, 'Password changed successfully');
+    logger.info({ userId: user.id }, 'Password changed successfully');
 
     res.json({
       success: true,
-      message: 'Password changed successfully'
+      message: 'Password changed successfully',
     });
   } catch (error) {
     logger.error({ error: error.message, stack: error.stack }, 'Change password error');
     res.status(500).json({
       success: false,
-      message: 'Server error changing password'
+      message: 'Server error changing password',
     });
   }
 };
@@ -145,20 +142,20 @@ const deleteAccount = async (req, res) => {
     if (!password) {
       return res.status(400).json({
         success: false,
-        message: 'Password is required to delete account'
+        message: 'Password is required to delete account',
       });
     }
 
     // Get user with password
-    const user = await User.findById(req.user.id).select('+password');
+    const user = await User.findByPk(req.user.id);
 
     // Verify password
-    const isPasswordValid = await user.comparePassword(password);
+    const isPasswordValid = await user.matchPassword(password);
     if (!isPasswordValid) {
-      logger.warn({ userId: user._id }, 'Invalid password provided for account deletion');
+      logger.warn({ userId: user.id }, 'Invalid password provided for account deletion');
       return res.status(400).json({
         success: false,
-        message: 'Password is incorrect'
+        message: 'Password is incorrect',
       });
     }
 
@@ -166,17 +163,17 @@ const deleteAccount = async (req, res) => {
     user.isActive = false;
     await user.save();
 
-    logger.info({ userId: user._id }, 'User account deactivated');
+    logger.info({ userId: user.id }, 'User account deactivated');
 
     res.json({
       success: true,
-      message: 'Account deleted successfully'
+      message: 'Account deleted successfully',
     });
   } catch (error) {
     logger.error({ error: error.message, stack: error.stack }, 'Delete account error');
     res.status(500).json({
       success: false,
-      message: 'Server error deleting account'
+      message: 'Server error deleting account',
     });
   }
 };
@@ -185,5 +182,5 @@ module.exports = {
   getProfile,
   updateProfile,
   changePassword,
-  deleteAccount
+  deleteAccount,
 };

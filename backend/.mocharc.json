@@ -1,0 +1,9 @@
+{
+  "extension": ["js"],
+  "package": "./package.json",
+  "recursive": true,
+  "require": ["dotenv/config"],
+  "exit": true,
+  "timeout": 10000,
+  "spec": ["src/tests/**/*.test.js"]
+}

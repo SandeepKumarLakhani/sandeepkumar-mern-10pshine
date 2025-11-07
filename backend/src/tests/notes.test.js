@@ -1,64 +1,71 @@
 const chai = require('chai');
-const chaiHttp = require('chai-http');
+const request = require('supertest');
 const app = require('../app');
 const User = require('../models/User');
 const Note = require('../models/Note');
 
-chai.use(chaiHttp);
 const { expect } = chai;
+const { initializeDatabase } = require('../config/database');
+
+before(async function () {
+  // Ensure DB/tables are initialized before running tests
+  this.timeout(20000);
+  await initializeDatabase();
+});
 
 describe('Notes Tests', () => {
   let authToken;
   let userId;
 
   beforeEach(async () => {
-    // Clean up database
-    await User.deleteMany({});
-    await Note.deleteMany({});
+    // Clean up database (destroy notes first because of FK constraint)
+    await Note.destroy({ where: {} });
+    await User.destroy({ where: {} });
 
     // Create a test user and get auth token
-    const user = new User({
+    const user = await User.create({
       name: 'Test User',
       email: 'test@example.com',
-      password: 'password123'
+      password: 'password123',
     });
-    await user.save();
-    userId = user._id;
-    authToken = user.generateAuthToken();
+    userId = user.id;
+    authToken = user.generateToken();
   });
 
   describe('POST /api/notes', () => {
-    it('should create a new note', (done) => {
+    it('should create a new note', done => {
       const noteData = {
         title: 'Test Note',
         content: 'This is a test note content',
-        tags: ['test', 'example']
+        tags: ['test', 'example'],
       };
 
-      chai.request(app)
+      request(app)
         .post('/api/notes')
         .set('Authorization', `Bearer ${authToken}`)
         .send(noteData)
+        .expect(201)
         .end((err, res) => {
-          expect(res).to.have.status(201);
-          expect(res.body).to.have.property('success').to.be.true;
+          if (err) return done(err);
+          expect(res.body).to.have.property('success').that.is.true;
           expect(res.body.data.note.title).to.equal(noteData.title);
           expect(res.body.data.note.content).to.equal(noteData.content);
           done();
         });
     });
 
-    it('should not create note without authentication', (done) => {
+    it('should not create note without authentication', done => {
       const noteData = {
         title: 'Test Note',
-        content: 'This is a test note content'
+        content: 'This is a test note content',
       };
 
-      chai.request(app)
+      request(app)
         .post('/api/notes')
         .send(noteData)
+        .expect(401)
         .end((err, res) => {
-          expect(res).to.have.status(401);
+          if (err) return done(err);
           done();
         });
     });
@@ -71,24 +78,25 @@ describe('Notes Tests', () => {
         {
           title: 'Note 1',
           content: 'Content 1',
-          user: userId
+          userId: userId,
         },
         {
           title: 'Note 2',
           content: 'Content 2',
-          user: userId
-        }
+          userId: userId,
+        },
       ];
-      await Note.insertMany(notes);
+      await Note.bulkCreate(notes);
     });
 
-    it('should get all notes for authenticated user', (done) => {
-      chai.request(app)
+    it('should get all notes for authenticated user', done => {
+      request(app)
         .get('/api/notes')
         .set('Authorization', `Bearer ${authToken}`)
+        .expect(200)
         .end((err, res) => {
-          expect(res).to.have.status(200);
-          expect(res.body).to.have.property('success').to.be.true;
+          if (err) return done(err);
+          expect(res.body).to.have.property('success').that.is.true;
           expect(res.body.data.notes).to.be.an('array');
           expect(res.body.data.notes).to.have.length(2);
           done();
@@ -100,28 +108,28 @@ describe('Notes Tests', () => {
     let noteId;
 
     beforeEach(async () => {
-      const note = new Note({
+      const note = await Note.create({
         title: 'Original Title',
         content: 'Original content',
-        user: userId
+        userId: userId,
       });
-      await note.save();
-      noteId = note._id;
+      noteId = note.id;
     });
 
-    it('should update a note', (done) => {
+    it('should update a note', done => {
       const updateData = {
         title: 'Updated Title',
-        content: 'Updated content'
+        content: 'Updated content',
       };
 
-      chai.request(app)
+      request(app)
         .put(`/api/notes/${noteId}`)
         .set('Authorization', `Bearer ${authToken}`)
         .send(updateData)
+        .expect(200)
         .end((err, res) => {
-          expect(res).to.have.status(200);
-          expect(res.body).to.have.property('success').to.be.true;
+          if (err) return done(err);
+          expect(res.body).to.have.property('success').that.is.true;
           expect(res.body.data.note.title).to.equal(updateData.title);
           done();
         });
@@ -132,22 +140,22 @@ describe('Notes Tests', () => {
     let noteId;
 
     beforeEach(async () => {
-      const note = new Note({
+      const note = await Note.create({
         title: 'Note to Delete',
         content: 'This note will be deleted',
-        user: userId
+        userId: userId,
       });
-      await note.save();
-      noteId = note._id;
+      noteId = note.id;
     });
 
-    it('should delete a note', (done) => {
-      chai.request(app)
+    it('should delete a note', done => {
+      request(app)
         .delete(`/api/notes/${noteId}`)
         .set('Authorization', `Bearer ${authToken}`)
+        .expect(200)
         .end((err, res) => {
-          expect(res).to.have.status(200);
-          expect(res.body).to.have.property('success').to.be.true;
+          if (err) return done(err);
+          expect(res.body).to.have.property('success').that.is.true;
           done();
         });
     });

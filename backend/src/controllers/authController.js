@@ -13,52 +13,48 @@ const register = async (req, res) => {
       return res.status(400).json({
         success: false,
         message: 'Validation failed',
-        errors: errors.array()
+        errors: errors.array(),
       });
     }
 
     const { name, email, password } = req.body;
 
     // Check if user already exists
-    const existingUser = await User.findOne({ email });
+    const existingUser = await User.findOne({ where: { email } });
     if (existingUser) {
       logger.warn({ email }, 'Registration attempt with existing email');
       return res.status(400).json({
         success: false,
-        message: 'User already exists with this email'
+        message: 'User already exists with this email',
       });
     }
 
     // Create user
-    const user = await User.create({
-      name,
-      email,
-      password
-    });
+    const user = await User.create({ name, email, password });
 
     // Generate token
-    const token = user.generateAuthToken();
+    const token = user.generateToken();
 
-    logger.info({ userId: user._id, email: user.email }, 'User registered successfully');
+    logger.info({ userId: user.id, email: user.email }, 'User registered successfully');
 
     res.status(201).json({
       success: true,
       message: 'User registered successfully',
       data: {
         user: {
-          id: user._id,
+          id: user.id,
           name: user.name,
           email: user.email,
-          avatar: user.avatar
+          avatar: user.avatar,
         },
-        token
-      }
+        token,
+      },
     });
   } catch (error) {
     logger.error({ error: error.message, stack: error.stack }, 'Registration error');
     res.status(500).json({
       success: false,
-      message: 'Server error during registration'
+      message: 'Server error during registration',
     });
   }
 };
@@ -74,38 +70,38 @@ const login = async (req, res) => {
       return res.status(400).json({
         success: false,
         message: 'Validation failed',
-        errors: errors.array()
+        errors: errors.array(),
       });
     }
 
     const { email, password } = req.body;
 
     // Find user and include password for comparison
-    const user = await User.findOne({ email }).select('+password');
+    const user = await User.findOne({ where: { email } });
     if (!user) {
       logger.warn({ email }, 'Login attempt with non-existent email');
       return res.status(401).json({
         success: false,
-        message: 'Invalid credentials'
+        message: 'Invalid credentials',
       });
     }
 
     // Check if user is active
     if (!user.isActive) {
-      logger.warn({ userId: user._id }, 'Login attempt with inactive account');
+      logger.warn({ userId: user.id }, 'Login attempt with inactive account');
       return res.status(401).json({
         success: false,
-        message: 'Account is inactive'
+        message: 'Account is inactive',
       });
     }
 
     // Check password
-    const isPasswordValid = await user.comparePassword(password);
+    const isPasswordValid = await user.matchPassword(password);
     if (!isPasswordValid) {
-      logger.warn({ userId: user._id }, 'Login attempt with invalid password');
+      logger.warn({ userId: user.id }, 'Login attempt with invalid password');
       return res.status(401).json({
         success: false,
-        message: 'Invalid credentials'
+        message: 'Invalid credentials',
       });
     }
 
@@ -113,29 +109,29 @@ const login = async (req, res) => {
     await user.updateLastLogin();
 
     // Generate token
-    const token = user.generateAuthToken();
+    const token = user.generateToken();
 
-    logger.info({ userId: user._id, email: user.email }, 'User logged in successfully');
+    logger.info({ userId: user.id, email: user.email }, 'User logged in successfully');
 
     res.json({
       success: true,
       message: 'Login successful',
       data: {
         user: {
-          id: user._id,
+          id: user.id,
           name: user.name,
           email: user.email,
           avatar: user.avatar,
-          lastLogin: user.lastLogin
+          lastLogin: user.lastLogin,
         },
-        token
-      }
+        token,
+      },
     });
   } catch (error) {
     logger.error({ error: error.message, stack: error.stack }, 'Login error');
     res.status(500).json({
       success: false,
-      message: 'Server error during login'
+      message: 'Server error during login',
     });
   }
 };
@@ -145,28 +141,28 @@ const login = async (req, res) => {
 // @access  Private
 const getMe = async (req, res) => {
   try {
-    const user = await User.findById(req.user.id);
-    
-    logger.info({ userId: user._id }, 'User profile retrieved');
+    const user = await User.findByPk(req.user.id);
+
+    logger.info({ userId: user.id }, 'User profile retrieved');
 
     res.json({
       success: true,
       data: {
         user: {
-          id: user._id,
+          id: user.id,
           name: user.name,
           email: user.email,
           avatar: user.avatar,
           lastLogin: user.lastLogin,
-          createdAt: user.createdAt
-        }
-      }
+          createdAt: user.createdAt,
+        },
+      },
     });
   } catch (error) {
     logger.error({ error: error.message, stack: error.stack }, 'Get profile error');
     res.status(500).json({
       success: false,
-      message: 'Server error retrieving profile'
+      message: 'Server error retrieving profile',
     });
   }
 };
@@ -174,5 +170,5 @@ const getMe = async (req, res) => {
 module.exports = {
   register,
   login,
-  getMe
+  getMe,
 };

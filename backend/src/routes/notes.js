@@ -7,7 +7,7 @@ const {
   createNote,
   updateNote,
   deleteNote,
-  togglePin
+  togglePin,
 } = require('../controllers/noteController');
 
 const router = express.Router();
@@ -25,10 +25,7 @@ const noteValidation = [
     .trim()
     .isLength({ min: 1, max: 10000 })
     .withMessage('Content must be between 1 and 10000 characters'),
-  body('tags')
-    .optional()
-    .isArray()
-    .withMessage('Tags must be an array'),
+  body('tags').optional().isArray().withMessage('Tags must be an array'),
   body('tags.*')
     .optional()
     .trim()
@@ -38,17 +35,10 @@ const noteValidation = [
     .optional()
     .matches(/^#[0-9A-F]{6}$/i)
     .withMessage('Color must be a valid hex color'),
-  body('isPinned')
-    .optional()
-    .isBoolean()
-    .withMessage('isPinned must be a boolean')
+  body('isPinned').optional().isBoolean().withMessage('isPinned must be a boolean'),
 ];
 
-const mongoIdValidation = [
-  param('id')
-    .isMongoId()
-    .withMessage('Invalid note ID')
-];
+const idParamValidation = [param('id').isInt({ min: 1 }).withMessage('Invalid note ID')];
 
 // @route   GET /api/notes
 // @desc    Get all notes for user
@@ -58,7 +48,7 @@ router.get('/', getNotes);
 // @route   GET /api/notes/:id
 // @desc    Get single note
 // @access  Private
-router.get('/:id', mongoIdValidation, getNote);
+router.get('/:id', idParamValidation, getNote);
 
 // @route   POST /api/notes
 // @desc    Create new note
@@ -68,16 +58,16 @@ router.post('/', noteValidation, createNote);
 // @route   PUT /api/notes/:id
 // @desc    Update note
 // @access  Private
-router.put('/:id', [...mongoIdValidation, ...noteValidation], updateNote);
+router.put('/:id', [...idParamValidation, ...noteValidation], updateNote);
 
 // @route   DELETE /api/notes/:id
 // @desc    Delete note
 // @access  Private
-router.delete('/:id', mongoIdValidation, deleteNote);
+router.delete('/:id', idParamValidation, deleteNote);
 
 // @route   PATCH /api/notes/:id/pin
 // @desc    Toggle note pin status
 // @access  Private
-router.patch('/:id/pin', mongoIdValidation, togglePin);
+router.patch('/:id/pin', idParamValidation, togglePin);
 
 module.exports = router;
