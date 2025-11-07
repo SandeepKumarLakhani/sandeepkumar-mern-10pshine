@@ -10,7 +10,9 @@ const PORT = process.env.PORT || 5000;
     await initializeDatabase();
 
     const server = app.listen(PORT, () => {
-      logger.info(`Server running on port ${PORT} in ${process.env.NODE_ENV || 'development'} mode`);
+      logger.info(
+        `Server running on port ${PORT} in ${process.env.NODE_ENV || 'development'} mode`
+      );
     });
 
     // Graceful shutdown handlers
@@ -31,12 +33,12 @@ const PORT = process.env.PORT || 5000;
     process.on('SIGINT', shutdown);
 
     // Global handlers
-    process.on('unhandledRejection', (err) => {
+    process.on('unhandledRejection', err => {
       logger.error({ error: err.message, stack: err.stack }, 'Unhandled Promise Rejection');
       process.exit(1);
     });
 
-    process.on('uncaughtException', (err) => {
+    process.on('uncaughtException', err => {
       logger.error({ error: err.message, stack: err.stack }, 'Uncaught Exception');
       process.exit(1);
     });

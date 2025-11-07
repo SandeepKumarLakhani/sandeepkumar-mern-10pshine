@@ -7,7 +7,7 @@ const {
   createNote,
   updateNote,
   deleteNote,
-  togglePin
+  togglePin,
 } = require('../controllers/noteController');
 
 const router = express.Router();
@@ -25,10 +25,7 @@ const noteValidation = [
     .trim()
     .isLength({ min: 1, max: 10000 })
     .withMessage('Content must be between 1 and 10000 characters'),
-  body('tags')
-    .optional()
-    .isArray()
-    .withMessage('Tags must be an array'),
+  body('tags').optional().isArray().withMessage('Tags must be an array'),
   body('tags.*')
     .optional()
     .trim()
@@ -38,17 +35,10 @@ const noteValidation = [
     .optional()
     .matches(/^#[0-9A-F]{6}$/i)
     .withMessage('Color must be a valid hex color'),
-  body('isPinned')
-    .optional()
-    .isBoolean()
-    .withMessage('isPinned must be a boolean')
+  body('isPinned').optional().isBoolean().withMessage('isPinned must be a boolean'),
 ];
 
-const idParamValidation = [
-  param('id')
-    .isInt({ min: 1 })
-    .withMessage('Invalid note ID')
-];
+const idParamValidation = [param('id').isInt({ min: 1 }).withMessage('Invalid note ID')];
 
 // @route   GET /api/notes
 // @desc    Get all notes for user
