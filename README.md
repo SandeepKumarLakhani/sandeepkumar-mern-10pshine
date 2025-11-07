@@ -14,7 +14,7 @@ A full-stack web application that allows users to create, edit, and delete notes
 ### Backend
 - **Node.js** - Runtime environment
 - **Express.js** - Web framework
-- **MongoDB** - Database
+- **MongoDB** - Dat
 - **Mongoose** - ODM
 - **JWT** - Authentication
 - **Pino** - Logging
@@ -34,7 +34,44 @@ A full-stack web application that allows users to create, edit, and delete notes
 ### DevOps & Quality
 - **Git** - Version control
 - **SonarQube** - Code quality analysis
-- **ESLint** - Code linting
+- **ESLint** - Code linting with security rules
+- **Prettier** - Code formatting
+- **Husky** - Git hooks
+- **lint-staged** - Staged files linting
+- **Jest** - Unit testing
+
+## Code Quality Tools
+
+### ESLint Configuration
+- Backend:
+  - Node.js specific rules
+  - Security plugin integration
+  - SonarJS rules
+  - Error handling rules
+- Frontend:
+  - React-specific rules
+  - Accessibility checks
+  - Hooks linting
+  - JSX formatting
+
+### Prettier Configuration
+- Line length: 100 characters
+- Single quotes
+- 2-space indentation
+- Trailing commas in ES5 mode
+- Consistent newlines
+
+### SonarQube Quality Gates
+- Code Coverage: Minimum 80%
+- Duplication: Maximum 3%
+- Security Hotspots: 0
+- Code Smells: Maximum 50
+- Cognitive Complexity: Maximum 15
+
+### Git Hooks (via Husky)
+- pre-commit: Lint and format staged files
+- pre-push: Run tests and coverage checks
+- commit-msg: Enforce conventional commits
 
 ## Project Structure
 ```
@@ -62,9 +99,14 @@ sandeepkumar-mern-10pshine/
 │   │   └── App.js             # Main app component
 │   ├── package.json
 │   └── env.example
+├── docs/                       # Documentation
+│   └── CODE_QUALITY.md        # Code quality guidelines
 ├── README.md
 ├── .gitignore
-└── sonar-project.properties
+├── .eslintrc.json             # ESLint configuration
+├── .prettierrc                # Prettier configuration
+├── .lintstagedrc              # lint-staged configuration
+└── sonar-project.properties   # SonarQube configuration
 ```
 
 ## Key Features
@@ -104,9 +146,11 @@ sandeepkumar-mern-10pshine/
 
 ### Code Quality
 - SonarQube integration
-- ESLint configuration
-- Code formatting standards
+- ESLint configuration with security rules
+- Prettier code formatting
 - Comprehensive error handling
+- Git hooks for quality checks
+- Automated code quality reports
 
 ## Branching Strategy
 
@@ -189,6 +233,19 @@ sandeepkumar-mern-10pshine/
    ```
 
 ### Running Tests
+### Quality Checks
+
+Run code quality checks:
+```bash
+# In backend or frontend directory
+npm run lint         # Check code style
+npm run lint:fix     # Fix code style issues
+npm run format       # Format code with Prettier
+npm run test        # Run tests
+npm run sonar       # Run SonarQube analysis
+```
+
+### Testing
 Backend tests:
 ```bash
 cd backend
@@ -229,10 +286,11 @@ npm test
 3. Make frequent commits with descriptive messages
 4. Write tests for new features
 5. Create pull requests to merge back to `develop`
-6. Require peer review before merging
+6. Create pull requests to merge back to `develop`
+7. Require peer review and passing quality checks before merging
 
 ## Contributing
-Please follow the established branching strategy and commit conventions when contributing to this project.
+Please follow the established branching strategy, commit conventions, and code quality standards when contributing to this project. See `docs/CODE_QUALITY.md` for detailed guidelines.
 
 ## License
 This project is licensed under the ISC License.
