@@ -9,15 +9,22 @@ const logger = require('../utils/logger');
 // @access  Private
 const getNotes = async (req, res) => {
   try {
-    const { page = 1, limit = 10, search, tags, sortBy = 'createdAt', sortOrder = 'desc' } = req.query;
+    const {
+      page = 1,
+      limit = 10,
+      search,
+      tags,
+      sortBy = 'createdAt',
+      sortOrder = 'desc',
+    } = req.query;
 
-  const where = { userId: req.user.id, isDeleted: false };
+    const where = { userId: req.user.id, isDeleted: false };
 
     // Simple search on title/content
     if (search) {
       where[Op.or] = [
         { title: { [Op.like]: `%${search}%` } },
-        { content: { [Op.like]: `%${search}%` } }
+        { content: { [Op.like]: `%${search}%` } },
       ];
     }
 
@@ -34,10 +41,13 @@ const getNotes = async (req, res) => {
       include: [{ model: User, as: 'user', attributes: ['id', 'name', 'email'] }],
       order,
       limit: parseInt(limit),
-      offset: (parseInt(page) - 1) * parseInt(limit)
+      offset: (parseInt(page) - 1) * parseInt(limit),
     });
 
-    logger.info({ userId: req.user.id, totalNotes: total, page, limit }, 'Notes retrieved successfully');
+    logger.info(
+      { userId: req.user.id, totalNotes: total, page, limit },
+      'Notes retrieved successfully'
+    );
 
     res.json({
       success: true,
@@ -48,9 +58,9 @@ const getNotes = async (req, res) => {
           totalPages: Math.ceil(total / limit),
           totalNotes: total,
           hasNext: page < Math.ceil(total / limit),
-          hasPrev: page > 1
-        }
-      }
+          hasPrev: page > 1,
+        },
+      },
     });
   } catch (error) {
     logger.error({ error: error.message, stack: error.stack }, 'Get notes error');
@@ -65,7 +75,7 @@ const getNote = async (req, res) => {
   try {
     const note = await Note.findOne({
       where: { id: req.params.id, userId: req.user.id, isDeleted: false },
-      include: [{ model: User, as: 'user', attributes: ['id', 'name', 'email'] }]
+      include: [{ model: User, as: 'user', attributes: ['id', 'name', 'email'] }],
     });
 
     if (!note) {
@@ -93,11 +103,11 @@ const createNote = async (req, res) => {
       return res.status(400).json({
         success: false,
         message: 'Validation failed',
-        errors: errors.array()
+        errors: errors.array(),
       });
     }
 
-  const noteData = { ...req.body, userId: req.user.id };
+    const noteData = { ...req.body, userId: req.user.id };
     const note = await Note.create(noteData);
 
     logger.info({ noteId: note.id, userId: req.user.id }, 'Note created successfully');
@@ -107,7 +117,7 @@ const createNote = async (req, res) => {
     logger.error({ error: error.message, stack: error.stack }, 'Create note error');
     res.status(500).json({
       success: false,
-      message: 'Server error creating note'
+      message: 'Server error creating note',
     });
   }
 };
@@ -123,11 +133,13 @@ const updateNote = async (req, res) => {
       return res.status(400).json({
         success: false,
         message: 'Validation failed',
-        errors: errors.array()
+        errors: errors.array(),
       });
     }
 
-  let note = await Note.findOne({ where: { id: req.params.id, userId: req.user.id, isDeleted: false } });
+    let note = await Note.findOne({
+      where: { id: req.params.id, userId: req.user.id, isDeleted: false },
+    });
 
     if (!note) {
       logger.warn({ noteId: req.params.id, userId: req.user.id }, 'Note not found for update');
@@ -143,7 +155,7 @@ const updateNote = async (req, res) => {
     logger.error({ error: error.message, stack: error.stack }, 'Update note error');
     res.status(500).json({
       success: false,
-      message: 'Server error updating note'
+      message: 'Server error updating note',
     });
   }
 };
@@ -153,7 +165,9 @@ const updateNote = async (req, res) => {
 // @access  Private
 const deleteNote = async (req, res) => {
   try {
-    const note = await Note.findOne({ where: { id: req.params.id, userId: req.user.id, isDeleted: false } });
+    const note = await Note.findOne({
+      where: { id: req.params.id, userId: req.user.id, isDeleted: false },
+    });
 
     if (!note) {
       logger.warn({ noteId: req.params.id, userId: req.user.id }, 'Note not found for deletion');
@@ -169,7 +183,7 @@ const deleteNote = async (req, res) => {
     logger.error({ error: error.message, stack: error.stack }, 'Delete note error');
     res.status(500).json({
       success: false,
-      message: 'Server error deleting note'
+      message: 'Server error deleting note',
     });
   }
 };
@@ -179,7 +193,9 @@ const deleteNote = async (req, res) => {
 // @access  Private
 const togglePin = async (req, res) => {
   try {
-    const note = await Note.findOne({ where: { id: req.params.id, userId: req.user.id, isDeleted: false } });
+    const note = await Note.findOne({
+      where: { id: req.params.id, userId: req.user.id, isDeleted: false },
+    });
 
     if (!note) {
       logger.warn({ noteId: req.params.id, userId: req.user.id }, 'Note not found for pin toggle');
@@ -188,14 +204,21 @@ const togglePin = async (req, res) => {
 
     await note.update({ isPinned: !note.isPinned });
 
-    logger.info({ noteId: note.id, userId: req.user.id, isPinned: note.isPinned }, 'Note pin status toggled');
+    logger.info(
+      { noteId: note.id, userId: req.user.id, isPinned: note.isPinned },
+      'Note pin status toggled'
+    );
 
-    res.json({ success: true, message: `Note ${note.isPinned ? 'pinned' : 'unpinned'} successfully`, data: { note } });
+    res.json({
+      success: true,
+      message: `Note ${note.isPinned ? 'pinned' : 'unpinned'} successfully`,
+      data: { note },
+    });
   } catch (error) {
     logger.error({ error: error.message, stack: error.stack }, 'Toggle pin error');
     res.status(500).json({
       success: false,
-      message: 'Server error toggling pin status'
+      message: 'Server error toggling pin status',
     });
   }
 };
@@ -206,5 +229,5 @@ module.exports = {
   createNote,
   updateNote,
   deleteNote,
-  togglePin
+  togglePin,
 };

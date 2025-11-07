@@ -21,15 +21,15 @@ const getProfile = async (req, res) => {
           avatar: user.avatar,
           lastLogin: user.lastLogin,
           createdAt: user.createdAt,
-          isActive: user.isActive
-        }
-      }
+          isActive: user.isActive,
+        },
+      },
     });
   } catch (error) {
     logger.error({ error: error.message, stack: error.stack }, 'Get profile error');
     res.status(500).json({
       success: false,
-      message: 'Server error retrieving profile'
+      message: 'Server error retrieving profile',
     });
   }
 };
@@ -45,7 +45,7 @@ const updateProfile = async (req, res) => {
       return res.status(400).json({
         success: false,
         message: 'Validation failed',
-        errors: errors.array()
+        errors: errors.array(),
       });
     }
 
@@ -70,15 +70,15 @@ const updateProfile = async (req, res) => {
           email: user.email,
           avatar: user.avatar,
           lastLogin: user.lastLogin,
-          createdAt: user.createdAt
-        }
-      }
+          createdAt: user.createdAt,
+        },
+      },
     });
   } catch (error) {
     logger.error({ error: error.message, stack: error.stack }, 'Update profile error');
     res.status(500).json({
       success: false,
-      message: 'Server error updating profile'
+      message: 'Server error updating profile',
     });
   }
 };
@@ -94,7 +94,7 @@ const changePassword = async (req, res) => {
       return res.status(400).json({
         success: false,
         message: 'Validation failed',
-        errors: errors.array()
+        errors: errors.array(),
       });
     }
 
@@ -109,25 +109,25 @@ const changePassword = async (req, res) => {
       logger.warn({ userId: user.id }, 'Invalid current password provided');
       return res.status(400).json({
         success: false,
-        message: 'Current password is incorrect'
+        message: 'Current password is incorrect',
       });
     }
 
     // Update password
-  user.password = newPassword;
-  await user.save();
+    user.password = newPassword;
+    await user.save();
 
-  logger.info({ userId: user.id }, 'Password changed successfully');
+    logger.info({ userId: user.id }, 'Password changed successfully');
 
     res.json({
       success: true,
-      message: 'Password changed successfully'
+      message: 'Password changed successfully',
     });
   } catch (error) {
     logger.error({ error: error.message, stack: error.stack }, 'Change password error');
     res.status(500).json({
       success: false,
-      message: 'Server error changing password'
+      message: 'Server error changing password',
     });
   }
 };
@@ -142,7 +142,7 @@ const deleteAccount = async (req, res) => {
     if (!password) {
       return res.status(400).json({
         success: false,
-        message: 'Password is required to delete account'
+        message: 'Password is required to delete account',
       });
     }
 
@@ -155,7 +155,7 @@ const deleteAccount = async (req, res) => {
       logger.warn({ userId: user.id }, 'Invalid password provided for account deletion');
       return res.status(400).json({
         success: false,
-        message: 'Password is incorrect'
+        message: 'Password is incorrect',
       });
     }
 
@@ -167,13 +167,13 @@ const deleteAccount = async (req, res) => {
 
     res.json({
       success: true,
-      message: 'Account deleted successfully'
+      message: 'Account deleted successfully',
     });
   } catch (error) {
     logger.error({ error: error.message, stack: error.stack }, 'Delete account error');
     res.status(500).json({
       success: false,
-      message: 'Server error deleting account'
+      message: 'Server error deleting account',
     });
   }
 };
@@ -182,5 +182,5 @@ module.exports = {
   getProfile,
   updateProfile,
   changePassword,
-  deleteAccount
+  deleteAccount,
 };

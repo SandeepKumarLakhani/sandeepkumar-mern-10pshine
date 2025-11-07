@@ -9,17 +9,17 @@ const DB_HOST = process.env.DB_HOST || 'localhost';
 const sequelize = new Sequelize(DB_NAME, DB_USER, DB_PASSWORD, {
   host: DB_HOST,
   dialect: 'mysql',
-  logging: (msg) => logger.debug(msg),
+  logging: msg => logger.debug(msg),
   pool: {
     max: 5,
     min: 0,
     acquire: 30000,
-    idle: 10000
+    idle: 10000,
   },
   define: {
     timestamps: true,
-    underscored: true
-  }
+    underscored: true,
+  },
 });
 
 let _dbInitialized = false;
@@ -57,5 +57,5 @@ async function initializeDatabase() {
 
 module.exports = {
   sequelize,
-  initializeDatabase
+  initializeDatabase,
 };

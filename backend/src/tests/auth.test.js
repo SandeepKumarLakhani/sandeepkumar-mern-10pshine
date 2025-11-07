@@ -15,17 +15,17 @@ before(async function () {
 
 describe('Authentication Tests', () => {
   beforeEach(async () => {
-  // Clean up database before each test (destroy notes first because of FK constraint)
-  await Note.destroy({ where: {} });
-  await User.destroy({ where: {} });
+    // Clean up database before each test (destroy notes first because of FK constraint)
+    await Note.destroy({ where: {} });
+    await User.destroy({ where: {} });
   });
 
   describe('POST /api/auth/register', () => {
-    it('should register a new user successfully', (done) => {
+    it('should register a new user successfully', done => {
       const userData = {
         name: 'Test User',
         email: 'test@example.com',
-        password: 'password123'
+        password: 'password123',
       };
 
       request(app)
@@ -43,11 +43,11 @@ describe('Authentication Tests', () => {
         });
     });
 
-    it('should not register user with invalid email', (done) => {
+    it('should not register user with invalid email', done => {
       const userData = {
         name: 'Test User',
         email: 'invalid-email',
-        password: 'password123'
+        password: 'password123',
       };
 
       request(app)
@@ -61,11 +61,11 @@ describe('Authentication Tests', () => {
         });
     });
 
-    it('should not register user with short password', (done) => {
+    it('should not register user with short password', done => {
       const userData = {
         name: 'Test User',
         email: 'test@example.com',
-        password: '123'
+        password: '123',
       };
 
       request(app)
@@ -86,14 +86,14 @@ describe('Authentication Tests', () => {
       await User.create({
         name: 'Test User',
         email: 'test@example.com',
-        password: 'password123'
+        password: 'password123',
       });
     });
 
-    it('should login user with valid credentials', (done) => {
+    it('should login user with valid credentials', done => {
       const loginData = {
         email: 'test@example.com',
-        password: 'password123'
+        password: 'password123',
       };
 
       request(app)
@@ -110,10 +110,10 @@ describe('Authentication Tests', () => {
         });
     });
 
-    it('should not login user with invalid credentials', (done) => {
+    it('should not login user with invalid credentials', done => {
       const loginData = {
         email: 'test@example.com',
-        password: 'wrongpassword'
+        password: 'wrongpassword',
       };
 
       request(app)

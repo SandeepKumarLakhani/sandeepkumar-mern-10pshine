@@ -5,7 +5,7 @@ const {
   getProfile,
   updateProfile,
   changePassword,
-  deleteAccount
+  deleteAccount,
 } = require('../controllers/userController');
 
 const router = express.Router();
@@ -20,25 +20,18 @@ const profileUpdateValidation = [
     .trim()
     .isLength({ min: 2, max: 50 })
     .withMessage('Name must be between 2 and 50 characters'),
-  body('avatar')
-    .optional()
-    .isURL()
-    .withMessage('Avatar must be a valid URL')
+  body('avatar').optional().isURL().withMessage('Avatar must be a valid URL'),
 ];
 
 const passwordChangeValidation = [
-  body('currentPassword')
-    .notEmpty()
-    .withMessage('Current password is required'),
+  body('currentPassword').notEmpty().withMessage('Current password is required'),
   body('newPassword')
     .isLength({ min: 6 })
-    .withMessage('New password must be at least 6 characters long')
+    .withMessage('New password must be at least 6 characters long'),
 ];
 
 const accountDeletionValidation = [
-  body('password')
-    .notEmpty()
-    .withMessage('Password is required to delete account')
+  body('password').notEmpty().withMessage('Password is required to delete account'),
 ];
 
 // @route   GET /api/user/profile

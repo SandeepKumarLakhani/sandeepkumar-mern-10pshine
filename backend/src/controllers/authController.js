@@ -13,7 +13,7 @@ const register = async (req, res) => {
       return res.status(400).json({
         success: false,
         message: 'Validation failed',
-        errors: errors.array()
+        errors: errors.array(),
       });
     }
 
@@ -25,7 +25,7 @@ const register = async (req, res) => {
       logger.warn({ email }, 'Registration attempt with existing email');
       return res.status(400).json({
         success: false,
-        message: 'User already exists with this email'
+        message: 'User already exists with this email',
       });
     }
 
@@ -45,16 +45,16 @@ const register = async (req, res) => {
           id: user.id,
           name: user.name,
           email: user.email,
-          avatar: user.avatar
+          avatar: user.avatar,
         },
-        token
-      }
+        token,
+      },
     });
   } catch (error) {
     logger.error({ error: error.message, stack: error.stack }, 'Registration error');
     res.status(500).json({
       success: false,
-      message: 'Server error during registration'
+      message: 'Server error during registration',
     });
   }
 };
@@ -70,7 +70,7 @@ const login = async (req, res) => {
       return res.status(400).json({
         success: false,
         message: 'Validation failed',
-        errors: errors.array()
+        errors: errors.array(),
       });
     }
 
@@ -82,7 +82,7 @@ const login = async (req, res) => {
       logger.warn({ email }, 'Login attempt with non-existent email');
       return res.status(401).json({
         success: false,
-        message: 'Invalid credentials'
+        message: 'Invalid credentials',
       });
     }
 
@@ -91,7 +91,7 @@ const login = async (req, res) => {
       logger.warn({ userId: user.id }, 'Login attempt with inactive account');
       return res.status(401).json({
         success: false,
-        message: 'Account is inactive'
+        message: 'Account is inactive',
       });
     }
 
@@ -101,7 +101,7 @@ const login = async (req, res) => {
       logger.warn({ userId: user.id }, 'Login attempt with invalid password');
       return res.status(401).json({
         success: false,
-        message: 'Invalid credentials'
+        message: 'Invalid credentials',
       });
     }
 
@@ -122,16 +122,16 @@ const login = async (req, res) => {
           name: user.name,
           email: user.email,
           avatar: user.avatar,
-          lastLogin: user.lastLogin
+          lastLogin: user.lastLogin,
         },
-        token
-      }
+        token,
+      },
     });
   } catch (error) {
     logger.error({ error: error.message, stack: error.stack }, 'Login error');
     res.status(500).json({
       success: false,
-      message: 'Server error during login'
+      message: 'Server error during login',
     });
   }
 };
@@ -154,15 +154,15 @@ const getMe = async (req, res) => {
           email: user.email,
           avatar: user.avatar,
           lastLogin: user.lastLogin,
-          createdAt: user.createdAt
-        }
-      }
+          createdAt: user.createdAt,
+        },
+      },
     });
   } catch (error) {
     logger.error({ error: error.message, stack: error.stack }, 'Get profile error');
     res.status(500).json({
       success: false,
-      message: 'Server error retrieving profile'
+      message: 'Server error retrieving profile',
     });
   }
 };
@@ -170,5 +170,5 @@ const getMe = async (req, res) => {
 module.exports = {
   register,
   login,
-  getMe
+  getMe,
 };

@@ -18,26 +18,26 @@ describe('Notes Tests', () => {
   let userId;
 
   beforeEach(async () => {
-  // Clean up database (destroy notes first because of FK constraint)
-  await Note.destroy({ where: {} });
-  await User.destroy({ where: {} });
+    // Clean up database (destroy notes first because of FK constraint)
+    await Note.destroy({ where: {} });
+    await User.destroy({ where: {} });
 
     // Create a test user and get auth token
     const user = await User.create({
       name: 'Test User',
       email: 'test@example.com',
-      password: 'password123'
+      password: 'password123',
     });
     userId = user.id;
     authToken = user.generateToken();
   });
 
   describe('POST /api/notes', () => {
-    it('should create a new note', (done) => {
+    it('should create a new note', done => {
       const noteData = {
         title: 'Test Note',
         content: 'This is a test note content',
-        tags: ['test', 'example']
+        tags: ['test', 'example'],
       };
 
       request(app)
@@ -54,10 +54,10 @@ describe('Notes Tests', () => {
         });
     });
 
-    it('should not create note without authentication', (done) => {
+    it('should not create note without authentication', done => {
       const noteData = {
         title: 'Test Note',
-        content: 'This is a test note content'
+        content: 'This is a test note content',
       };
 
       request(app)
@@ -78,18 +78,18 @@ describe('Notes Tests', () => {
         {
           title: 'Note 1',
           content: 'Content 1',
-          userId: userId
+          userId: userId,
         },
         {
           title: 'Note 2',
           content: 'Content 2',
-          userId: userId
-        }
+          userId: userId,
+        },
       ];
       await Note.bulkCreate(notes);
     });
 
-    it('should get all notes for authenticated user', (done) => {
+    it('should get all notes for authenticated user', done => {
       request(app)
         .get('/api/notes')
         .set('Authorization', `Bearer ${authToken}`)
@@ -111,15 +111,15 @@ describe('Notes Tests', () => {
       const note = await Note.create({
         title: 'Original Title',
         content: 'Original content',
-        userId: userId
+        userId: userId,
       });
       noteId = note.id;
     });
 
-    it('should update a note', (done) => {
+    it('should update a note', done => {
       const updateData = {
         title: 'Updated Title',
-        content: 'Updated content'
+        content: 'Updated content',
       };
 
       request(app)
@@ -143,12 +143,12 @@ describe('Notes Tests', () => {
       const note = await Note.create({
         title: 'Note to Delete',
         content: 'This note will be deleted',
-        userId: userId
+        userId: userId,
       });
       noteId = note.id;
     });
 
-    it('should delete a note', (done) => {
+    it('should delete a note', done => {
       request(app)
         .delete(`/api/notes/${noteId}`)
         .set('Authorization', `Bearer ${authToken}`)
